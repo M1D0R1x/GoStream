@@ -2,34 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoStream</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
-            background: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
             padding: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Header Section */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Video Player */
+        .video-container {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
         video {
             width: 100%;
-            max-width: 720px;
-            margin-bottom: 1rem;
+            display: block;
+            background: #000;
+        }
+
+        /* Error Message */
+        .error {
+            text-align: center;
+            color: #e74c3c;
+            margin: 1rem auto;
+            max-width: 800px;
+            padding: 1rem;
+            background: #ffebee;
+            border-radius: 5px;
+            display: none; /* Hidden by default, shown via JS */
+        }
+        .error.show {
             display: block;
         }
-        .video-list button {
-            display: block;
-            padding: 0.5rem 1rem;
-            margin: 0.3rem 0;
+
+        /* Video List */
+        .video-list {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
             cursor: pointer;
         }
-        .error {
-            color: red;
-            margin: 1rem 0;
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-card button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            background: #3498db;
+            color: #fff;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .video-card button:hover {
+            background: #2980b9;
+        }
+
+        .video-card .video-details {
+            padding: 1rem;
+            background: #ecf0f1;
+            min-height: 50px; /* Space for future details */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .video-container {
+                margin-bottom: 1.5rem;
+            }
+            .video-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 <h1>🎥 GoStream</h1>
-<video id="player" controls></video>
+<div class="video-container">
+    <video id="player" controls></video>
+</div>
 <div class="error" id="error"></div>
 <div class="video-list" id="videoList"></div>
 
@@ -49,30 +141,47 @@
         .then(data => {
             if (data.length === 0) {
                 errorDiv.textContent = 'No videos found.';
+                errorDiv.classList.add('show');
                 return;
             }
             data.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+
                 const btn = document.createElement('button');
                 btn.textContent = video.name;
+
+                const details = document.createElement('div');
+                details.className = 'video-details';
+                // Placeholder for future details (e.g., duration, description)
+                // details.innerHTML = `<p>Duration: TBD</p><p>Description: TBD</p>`;
+
                 btn.onclick = () => {
-                    errorDiv.textContent = ''; // Clear previous errors
+                    errorDiv.textContent = '';
+                    errorDiv.classList.remove('show');
                     player.src = video.url;
                     player.play().catch(err => {
                         errorDiv.textContent = `Error playing video: ${err.message}`;
+                        errorDiv.classList.add('show');
                         console.error('Playback error:', err);
                     });
                 };
-                videoList.appendChild(btn);
+
+                card.appendChild(btn);
+                card.appendChild(details);
+                videoList.appendChild(card);
             });
         })
         .catch(err => {
             errorDiv.textContent = `Error loading video list: ${err.message}`;
+            errorDiv.classList.add('show');
             console.error('Fetch error:', err);
         });
 
-    // Log video errors (e.g., if the video file is not found or invalid)
+    // Log video errors
     player.addEventListener('error', () => {
         errorDiv.textContent = `Video error: ${player.error ? player.error.message : 'Unknown error'}`;
+        errorDiv.classList.add('show');
     });
 </script>
 </body>
