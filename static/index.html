@@ -171,7 +171,7 @@
         }
     </style>
 </head>
-</body>
+<body>
 <h1>🎥 GoStream</h1>
 <div class="video-container">
     <video id="player" controls></video>
@@ -222,16 +222,28 @@
                         errorDiv.classList.add('show');
                         console.error('Playback error:', err);
                     });
-                    // Toggle details
                     card.classList.toggle('active');
+                };
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevent card activation
+                    const link = document.createElement('a');
+                    link.href = video.url + '?download=true'; // Signal download intent
+                    link.download = video.name; // Set filename
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 };
 
                 const details = document.createElement('div');
                 details.className = 'video-details';
-                // Placeholder for future details (e.g., duration, description)
+                // Placeholder for future details
                 // details.innerHTML = `<p>Duration: ${video.duration || 'N/A'}</p><p>${video.description || 'No description'}</p>`;
 
                 card.appendChild(btn);
+                card.appendChild(downloadBtn); // Add download button
                 card.appendChild(details);
                 videoList.appendChild(card);
             });
@@ -249,7 +261,5 @@
         errorDiv.classList.add('show');
     });
 </script>
-</head>
-<body>
 </body>
 </html>
